@@ -26,24 +26,38 @@ env:
     - TEST_DIR=cli
     - TEST_DIR=server
 matrix:
+  include:
+    - rvm: 2.0.0-p648
+      env: TEST_DIR=cli
+    - rvm: 2.1.8
+      env: TEST_DIR=cli
+    - rvm: 2.2.3
+      env: TEST_DIR=cli
+    - rvm: 2.3.1
+      env: TEST_DIR=cli
+    - rvm: 2.3.1
+      env: TEST_DIR=agent
+    - rvm: 2.3.1
+      env: TEST_DIR=server
   exclude:
     - rvm: 2.0.0-p648
-      env: TEST_DIR=server
+      env: TEST_DIR=agent
     - rvm: 2.1.10
-      env: TEST_DIR=server
+      env: TEST_DIR=agent
     - rvm: 2.2.6
-      env: TEST_DIR=server
+      env: TEST_DIR=agent
     - rvm: 2.4.0
-      env: TEST_DIR=server
+      env: TEST_DIR=agent
     - rvm: 2.0.0-p648
-      env: TEST_DIR=agent
-    - rvm: 2.1.10
-      env: TEST_DIR=agent
-    - rvm: 2.2.6
-      env: TEST_DIR=agent
+      env: TRAVIS_OS_NAME=osx
+    - rvm: 2.1.8
+      env: TRAVIS_OS_NAME=osx
+    - rvm: 2.2.3
+      env: TRAVIS_OS_NAME=osx
+    - rvm: 2.3.1
+      env: TRAVIS_OS_NAME=osx
     - rvm: 2.4.0
-      env: TEST_DIR=agent
-    - env: TRAVIS_OS_NAME=osx
+      env: TRAVIS_OS_NAME=osx
 script: ./build/travis/test.sh
 deploy:
   - provider: script
