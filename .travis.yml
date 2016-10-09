@@ -29,29 +29,18 @@ matrix:
   include:
     - rvm: 2.0.0-p648
       env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
-    - rvm: 2.1.8
-      env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
-    - rvm: 2.2.3
-      env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
-  exclude:
-    - rvm: 2.0.0-p648
-      env: TEST_DIR=agent
     - rvm: 2.1.10
-      env: TEST_DIR=agent
+      env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
     - rvm: 2.2.6
-      env: TEST_DIR=agent
-    - rvm: 2.4.0
-      env: TEST_DIR=agent
-    - rvm: 2.0.0-p648
-      env: TRAVIS_OS_NAME=osx
-    - rvm: 2.1.8
-      env: TRAVIS_OS_NAME=osx
-    - rvm: 2.2.3
-      env: TRAVIS_OS_NAME=osx
+      env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
     - rvm: 2.3.1
-      env: TRAVIS_OS_NAME=osx
+      env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
     - rvm: 2.4.0
-      env: TRAVIS_OS_NAME=osx
+      env: TEST_DIR=cli && TRAVIS_OS_NAME=linux
+    - rvm: 2.3.1
+      env: TEST_DIR=agent && TRAVIS_OS_NAME=linux
+    - rvm: 2.3.1
+      env: TEST_DIR=server && TRAVIS_OS_NAME=linux
 script: ./build/travis/test.sh
 deploy:
   - provider: script
