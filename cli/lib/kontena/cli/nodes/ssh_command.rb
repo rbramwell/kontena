@@ -3,7 +3,7 @@ module Kontena::Cli::Nodes
     include Kontena::Cli::Common
     include Kontena::Cli::GridOptions
 
-    parameter "[NODE_ID]", "Node id"
+    parameter "[NODE_ID]", "SSH to Grid node, or first connected node"
     option ["-i", "--identity-file"], "IDENTITY_FILE", "Path to ssh private key"
     option ["-u", "--user"], "USER", "Login as a user", default: "core"
     option "--private-ip", :flag, "Connect to node's private IP address"
