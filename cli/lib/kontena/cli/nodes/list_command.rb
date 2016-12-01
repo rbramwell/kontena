@@ -30,16 +30,39 @@ module Kontena::Cli::Nodes
           end
         end
       else
+        grid = client(token).get("grids/#{current_grid}")
         nodes = client(token).get("grids/#{current_grid}/nodes")
         puts "%-70s %-10s %-10s %-40s" % ['Name', 'Status', 'Initial', 'Labels']
         nodes = nodes['nodes'].sort_by{|n| n['node_number'] }
+        initial_nodes_created = 0
+        initial_nodes_connected = 0
         nodes.each do |node|
+          initial_nodes_created += 1 if node['initial_member']
+          initial_nodes_connected += 1 if node['initial_member'] && node['connected']
           puts "%-70.70s %-10s %-10s %-40s" % [
             node['name'],
             node['connected'] ? 'online' : 'offline',
             node['initial_member'] ? 'yes' : 'no',
             (node['labels'] || ['-']).join(",")
           ]
+        end
+
+        # validate initial nodes for etcd quorum
+        initial_nodes = grid['initial_size']
+        minimum_nodes = (grid['initial_size'] * 0.5).ceil # a majority
+
+        if initial_nodes_created < minimum_nodes
+          error "Grid only has #{initial_nodes_created} of #{grid['initial_size']} initial nodes created, and requires at least #{minimum_nodes} nodes to operate"
+
+        elsif initial_nodes_connected < minimum_nodes
+          error "Grid only has #{initial_nodes_connected} of #{grid['initial_size']} initial nodes connected, and requires at least #{minimum_nodes} nodes to operate"
+
+        elsif initial_nodes_created < initial_nodes
+          warning "Grid only has #{initial_nodes_created} of #{grid['initial_size']} initial nodes created, and requires at least #{minimum_nodes} nodes to operate"
+
+        elsif initial_nodes_connected < initial_nodes
+          warning "Grid only has #{initial_nodes_connected} of #{grid['initial_size']} initial nodes connected, and requires at least #{minimum_nodes} nodes to operate"
+
         end
       end
     end
