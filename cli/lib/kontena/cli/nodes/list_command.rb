@@ -18,13 +18,9 @@ module Kontena::Cli::Nodes
 
     def node_intial(node, grid_health)
       if !node['initial_member']
-        return " ", "no"
-      elsif grid_health[:connected] < grid_health[:minimum]
-        return health_symbol(:error), "yes"
-      elsif grid_health[:connected] < grid_health[:initial]
-        return health_symbol(:warning), "yes"
+        return " ", "-"
       else
-        return health_symbol(:ok), "yes"
+        return health_symbol(grid_health[:health]), "#{node['node_number']} / #{grid_health[:initial]}"
       end
     end
 
