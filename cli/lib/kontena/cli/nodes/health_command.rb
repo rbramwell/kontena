@@ -16,7 +16,7 @@ module Kontena::Cli::Nodes
       node = client(token).get("nodes/#{current_grid}/#{node_id}")
 
       return check_node_health(node) do |sym, msg|
-        log_health(sym, msg)
+        STDOUT.puts "#{health_symbol(sym)} #{msg}"
       end
     end
   end

@@ -8,52 +8,63 @@ module Kontena::Cli::Nodes
 
     option ["--all"], :flag, "List nodes for all grids", default: false
 
+    def node_status(node)
+      if node['connected']
+        return health_symbol(:ok), "online"
+      else
+        return health_symbol(:error), "offline"
+      end
+    end
+
+    def node_intial(node, grid_health)
+      if !node['initial_member']
+        return " ", "no"
+      elsif grid_health[:connected] < grid_health[:minimum]
+        return health_symbol(:error), "yes"
+      elsif grid_health[:connected] < grid_health[:initial]
+        return health_symbol(:warning), "yes"
+      else
+        return health_symbol(:ok), "yes"
+      end
+    end
+
+    def node_labels(node)
+      (node['labels'] || ['-']).join(",")
+    end
+
+    def show_grid(grid, multi: false)
+      grid_nodes = client(require_token).get("grids/#{current_grid}/nodes")
+      grid_health = check_grid_health(grid, grid_nodes['nodes'])
+
+      nodes = grid_nodes['nodes'].sort_by{|n| n['node_number'] }
+      nodes.each do |node|
+        puts [
+          "%-70.70s" % [multi ? "#{grid['name']}/#{node['name']}" : node['name']],
+          "%s %-10s" % node_status(node),
+          "%s %-10s" % node_intial(node, grid_health),
+          "%s" % [node_labels(node)],
+        ].join ' '
+      end
+    end
+
     def execute
       require_api_url
       require_current_grid
       token = require_token
 
+      puts "%-70s %-12s %-12s %-40s" % ["Name", "  Status", "  Initial", "Labels"]
+
       if all?
         grids = client(token).get("grids")
-        puts "%-70s %-10s %-40s" % [ 'Name', 'Status', 'Labels']
 
         grids['grids'].each do |grid|
-          grid_nodes = client(token).get("grids/#{grid['name']}/nodes")
-
-          show_grid_health(grid, grid_nodes['nodes'])
-
-          grid_nodes['nodes'].each do |node|
-            if node['connected']
-              status = 'online'
-            else
-              status = 'offline'
-            end
-            puts "%-70.70s %-10s %-40s" % [
-              "#{grid['name']}/#{node['name']}",
-              status,
-              (node['labels'] || ['-']).join(",")
-            ]
-          end
+          show_grid(grid, multi: true)
         end
       else
         grid = client(token).get("grids/#{current_grid}")
-        grid_nodes = client(token).get("grids/#{current_grid}/nodes")
 
-        show_grid_health(grid, grid_nodes['nodes'])
-
-        puts "%-70s %-10s %-10s %-40s" % ['Name', 'Status', 'Initial', 'Labels']
-        nodes = grid_nodes['nodes'].sort_by{|n| n['node_number'] }
-        nodes.each do |node|
-          puts "%-70.70s %-10s %-10s %-40s" % [
-            node['name'],
-            node['connected'] ? 'online' : 'offline',
-            node['initial_member'] ? 'yes' : 'no',
-            (node['labels'] || ['-']).join(",")
-          ]
-        end
-
+        show_grid(grid)
       end
     end
-
   end
 end

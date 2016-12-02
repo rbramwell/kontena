@@ -1,9 +1,6 @@
 module Kontena::Cli::Helpers
   module HealthHelper
-    # Validate grid/nodes configuration for etcd operation
-    # @param grid [Hash] get(/grids/:grid) => { ... }
-    # @param nodes [Array<Hash>] get(/grids/:grid/nodes)[nodes] => [ { ... } ]
-    def show_grid_health(grid, nodes)
+    def check_grid_health(grid, nodes)
       initial_nodes = grid['initial_size']
       minimum_nodes = grid['initial_size'] / 2 + 1 # a majority is required for etcd quorum
 
@@ -15,17 +12,32 @@ module Kontena::Cli::Helpers
         initial_nodes_connected += 1 if node['initial_member'] && node['connected']
       end
 
-      if initial_nodes_created < minimum_nodes
-        log_error "Grid only has #{initial_nodes_created} of #{grid['initial_size']} initial nodes created, and requires at least #{minimum_nodes} nodes to operate"
+      return {
+        initial: initial_nodes,
+        minimum: minimum_nodes,
+        created: initial_nodes_created,
+        connected: initial_nodes_connected,
+        health: initial_nodes_connected >= minimum_nodes,
+      }
+    end
+
+    # Validate grid/nodes configuration for etcd operation
+    # @param grid [Hash] get(/grids/:grid) => { ... }
+    # @param nodes [Array<Hash>] get(/grids/:grid/nodes)[nodes] => [ { ... } ]
+    def show_grid_health(grid, nodes)
+      status = check_grid_health(grid, nodes)
+
+      if status[:created] < status[:minimum]
+        log_error "Grid only has #{status[:created]} of #{status[:initial]} initial nodes created, and requires at least #{status[:minimum]} nodes to operate"
 
       elsif initial_nodes_connected < minimum_nodes
-        log_error "Grid only has #{initial_nodes_connected} of #{grid['initial_size']} initial nodes connected, and requires at least #{minimum_nodes} nodes to operate"
+        log_error "Grid only has #{status[:connected]} of #{status[:initial]} initial nodes connected, and requires at least #{status[:minimum]} nodes to operate"
 
       elsif initial_nodes_created < initial_nodes
-        warning "Grid only has #{initial_nodes_created} of #{grid['initial_size']} initial nodes created, and requires at least #{minimum_nodes} nodes to operate"
+        warning "Grid only has #{status[:created]} of #{status[:initial]} initial nodes created, and requires at least #{status[:minimum]} nodes to operate"
 
       elsif initial_nodes_connected < initial_nodes
-        warning "Grid only has #{initial_nodes_connected} of #{grid['initial_size']} initial nodes connected, and requires at least #{minimum_nodes} nodes to operate"
+        warning "Grid only has #{status[:connected]} of #{status[:initial]} initial nodes connected, and requires at least #{status[:minimum]} nodes to operate"
 
       end
     end
@@ -57,10 +69,6 @@ module Kontena::Cli::Helpers
       else
         pastel.grey(HEALTH_SYMBOL)
       end
-    end
-
-    def log_health(sym, msg)
-      STDERR.puts "#{health_symbol(sym)} #{msg}"
     end
   end
 end
