@@ -55,10 +55,14 @@ module Kontena::Cli::Helpers
     def show_grid_health(grid, nodes)
       grid_health = check_grid_health(grid, nodes)
 
-      if grid_health[:created] < grid_health[:minimum]
-        show_health :error, "Grid only has #{grid_health[:created]} of #{grid_health[:minimum]} initial nodes, and will not operate"
+      if grid_health[:created] == 0
+        show_health :error, "Grid does not have any initial nodes, and requires at least #{grid_health[:minimum]} of #{grid_health[:initial]} nodes for operation"
+      elsif grid_health[:created] < grid_health[:minimum]
+        show_health :error, "Grid only has #{grid_health[:created]} of #{grid_health[:minimum]} initial nodes required for operation"
       elsif grid_health[:created] < grid_health[:initial]
-        show_health :warning, "Grid only has #{grid_health[:created]} of #{grid_health[:initial]} initial nodes, and will not be highly available"
+        show_health :warning, "Grid only has #{grid_health[:created]} of #{grid_health[:initial]} initial nodes required for high-availability"
+      elsif grid_health[:initial] <= 2
+        show_health :warning, "Grid only has #{grid_health[:initial]} initial nodes, and is not high-availability"
       end
 
       grid_health[:nodes].each do |node|
