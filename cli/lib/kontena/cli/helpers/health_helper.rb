@@ -13,7 +13,7 @@ module Kontena::Cli::Helpers
       when :error
         pastel.red(HEALTH_SYMBOL)
       else
-        pastel.grey(HEALTH_SYMBOL)
+        pastel.dark(HEALTH_SYMBOL)
       end
     end
 

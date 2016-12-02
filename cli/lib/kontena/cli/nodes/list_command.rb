@@ -19,6 +19,8 @@ module Kontena::Cli::Nodes
     def node_intial(node, grid_health)
       if !node['initial_member']
         return health_symbol(nil), "-"
+      elsif !node['connected']
+        return health_symbol(:unkonwn), "-"
       else
         return health_symbol(grid_health[:health]), "#{node['node_number']} / #{grid_health[:initial]}"
       end
