@@ -15,10 +15,8 @@ module Kontena::Cli::Nodes
 
       node = client(token).get("nodes/#{current_grid}/#{node_id}")
 
-      if !node['connected']
-        exit_with_error "Node is not connected"
-      else
-        STDERR.puts " [#{pastel.green('ok')}] Node is healthy"
+      return check_node_health(node) do |sym, msg|
+        log_health(sym, msg)
       end
     end
   end

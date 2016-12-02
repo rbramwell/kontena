@@ -29,5 +29,34 @@ module Kontena::Cli::Helpers
 
       end
     end
+
+    # Check node health
+    #
+    # @param node [Hash] get(/nodes/:grid/:node)
+    # @return [Boolean] false if unhealthy
+    def check_node_health(node)
+      if !node['connected']
+        yield :error, "Node is not connected"
+        return false
+      else
+        yield :ok, "Node is connected"
+        return true
+      end
+    end
+
+    HEALTH_SYMBOL = "●"
+
+    def log_health(sym, msg)
+      case sym
+      when :ok
+        STDERR.puts "#{pastel.green(HEALTH_SYMBOL)} #{msg}"
+      when :warning
+        STDERR.puts "#{pastel.yellow(HEALTH_SYMBOL)} #{msg}"
+      when :error
+        STDERR.puts "#{pastel.red(HEALTH_SYMBOL)} #{msg}"
+      else
+        STDERR.puts "#{pastel.grey(HEALTH_SYMBOL)} #{msg}"
+      end
+    end
   end
 end
