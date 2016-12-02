@@ -1,11 +1,8 @@
-require_relative '../helpers/health_helper'
-
 module Kontena::Cli::Nodes
   class ShowCommand < Kontena::Command
     include Kontena::Cli::Common
     include Kontena::Cli::GridOptions
     include Kontena::Cli::BytesHelper
-    include Kontena::Cli::Helpers::HealthHelper
 
     parameter "NODE_ID", "Node id"
 
@@ -50,11 +47,6 @@ module Kontena::Cli::Nodes
           puts "      - #{filesystem['name']}: #{to_gigabytes(filesystem['used'], 2)} of #{to_gigabytes(filesystem['total'], 2)} GB"
         end
       end
-      puts "  health:"
-      check_node_health(node) do |sym, msg|
-        puts "    -#{health_symbol(sym)} #{msg}"
-      end
     end
-
   end
 end
