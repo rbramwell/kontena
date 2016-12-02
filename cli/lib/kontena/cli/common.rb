@@ -95,6 +95,10 @@ module Kontena
         STDERR.puts " [#{warning}] #{msg}"
       end
 
+      def log_error(msg)
+        STDERR.puts " [#{pastel.red('error')}] #{msg}"
+      end
+
       def exit_with_error(msg, code = 1)
         error = pastel.red('error')
         STDERR.puts " [#{error}] #{msg}"
