@@ -17,6 +17,10 @@ module Kontena::Cli::Helpers
       end
     end
 
+    def show_health(health, message)
+      STDOUT.puts "#{health_symbol(health)} #{message}"
+    end
+
     # Validate grid nodes configuration and status
     #
     def check_grid_health(grid, nodes)
@@ -38,6 +42,7 @@ module Kontena::Cli::Helpers
         initial: initial,
         minimum: minimum,
         nodes: nodes,
+        created: nodes.length,
         connected: connected_nodes.length,
         health: health,
       }
@@ -50,21 +55,23 @@ module Kontena::Cli::Helpers
     def show_grid_health(grid, nodes)
       grid_health = check_grid_health(grid, nodes)
 
-      if grid_health[:nodes].length < grid_health[:minimum]
-        yield :error, "Grid only has #{grid_health[:created]} of #{grid_health[:minimum]} initial nodes, and will not operate"
-      elsif grid_health[:nodes].length < grid_health[:initial]
-        yield :warning, "Grid only has #{grid_health[:created]} of #{grid_health[:initial]} initial nodes, and will not be high-availability"
+      if grid_health[:created] < grid_health[:minimum]
+        show_health :error, "Grid only has #{grid_health[:created]} of #{grid_health[:minimum]} initial nodes, and will not operate"
+      elsif grid_health[:created] < grid_health[:initial]
+        show_health :warning, "Grid only has #{grid_health[:created]} of #{grid_health[:initial]} initial nodes, and will not be highly available"
       end
 
       grid_health[:nodes].each do |node|
         if !node['connected']
-          yield grid_health[:health], "Initial node #{node['name']} is disconnected"
-        else
-          yield :ok, "Initial node #{node['name']} is connected"
+          show_health grid_health[:health], "Initial node #{node['name']} is disconnected"
         end
       end
 
-      return grid_health[:health] == :ok
+      unless grid_health[:connected] < grid_health[:initial]
+        show_health :ok, "Grid has all #{grid_health[:connected]} of #{grid_health[:initial]} initial nodes connected"
+      end
+
+      return grid_health[:health] != :error
     end
 
     # Check node health
@@ -73,10 +80,10 @@ module Kontena::Cli::Helpers
     # @return [Boolean] false if unhealthy
     def show_node_health(node)
       if !node['connected']
-        yield :error, "Node is not connected"
+        show_health :error, "Node is not connected"
         return false
       else
-        yield :ok, "Node is connected"
+        show_health :ok, "Node is connected"
         return true
       end
     end

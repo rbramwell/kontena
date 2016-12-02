@@ -19,6 +19,31 @@ describe Kontena::Cli::Helpers::HealthHelper do
       }
     end
 
+    context "without any nodes" do
+      let :grid_nodes do
+        { "nodes" => [ ] }
+      end
+
+      describe '#check_grid_health' do
+        it "returns error" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 1,
+            minimum: 1,
+            created: 0,
+            connected: 0,
+            health: :error,
+          )
+        end
+      end
+
+      describe '#show_grid_health' do
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:error, "Grid only has 0 of 1 initial nodes, and will not operate")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_falsey
+        end
+      end
+    end
+
     context "with a single offline node" do
       let :grid_nodes do
         { "nodes" => [
@@ -44,11 +69,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "returns error" do
-          expect(subject).to_not receive(:warning)
-          expect(subject).to receive(:log_error)
-
-          health = subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:error, "Initial node node-1 is disconnected")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_falsey
         end
       end
     end
@@ -78,11 +101,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "does not show any warning or error" do
-          expect(subject).to_not receive(:warning)
-          expect(subject).to_not receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns true" do
+          expect(subject).to receive(:show_health).with(:ok, "Grid has all 1 of 1 initial nodes connected")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_truthy
         end
       end
     end
@@ -123,11 +144,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "shows an error" do
-          expect(subject).to_not receive(:warning)
-          expect(subject).to receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:error, "Grid only has 1 of 2 initial nodes, and will not operate")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_falsey
         end
       end
     end
@@ -163,11 +182,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "does not show any warning or error" do
-          expect(subject).to_not receive(:warning)
-          expect(subject).to_not receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns true" do
+          expect(subject).to receive(:show_health).with(:ok, "Grid has all 2 of 2 initial nodes connected")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_truthy
         end
       end
     end
@@ -214,11 +231,10 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "shows an error" do
-          expect(subject).to_not receive(:warning)
-          expect(subject).to receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:warning, "Grid only has 2 of 3 initial nodes, and will not be highly available")
+          expect(subject).to receive(:show_health).with(:error, "Initial node node-2 is disconnected")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_falsey
         end
       end
     end
@@ -254,11 +270,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "shows an warning" do
-          expect(subject).to receive(:warning)
-          expect(subject).to_not receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:warning, "Grid only has 2 of 3 initial nodes, and will not be highly available")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_truthy
         end
       end
     end
@@ -300,11 +314,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "shows an warning" do
-          expect(subject).to receive(:warning)
-          expect(subject).to_not receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:warning, "Initial node node-3 is disconnected")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_truthy
         end
       end
     end
@@ -346,11 +358,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "shows an warning" do
-          expect(subject).to receive(:warning)
-          expect(subject).to_not receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns false" do
+          expect(subject).to receive(:show_health).with(:warning, "Grid only has 2 of 3 initial nodes, and will not be highly available")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_truthy
         end
       end
     end
@@ -392,11 +402,9 @@ describe Kontena::Cli::Helpers::HealthHelper do
       end
 
       describe '#show_grid_health' do
-        it "does not show any warning or error" do
-          expect(subject).to_not receive(:warning)
-          expect(subject).to_not receive(:log_error)
-
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+        it "returns true" do
+          expect(subject).to receive(:show_health).with(:ok, "Grid has all 3 of 3 initial nodes connected")
+          expect(subject.show_grid_health(grid, grid_nodes['nodes']){|sym, msg| }).to be_truthy
         end
       end
     end

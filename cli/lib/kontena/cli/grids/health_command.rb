@@ -15,9 +15,7 @@ module Kontena::Cli::Grids
       grid = get_grid(name)
       grid_nodes = client(require_token).get("grids/#{grid['name']}/nodes")
 
-      return show_grid_health(grid, grid_nodes['nodes']) do |sym, msg|
-        STDOUT.puts "#{health_symbol(sym)} #{msg}"
-      end
+      return show_grid_health(grid, grid_nodes['nodes'])
     end
   end
 end
