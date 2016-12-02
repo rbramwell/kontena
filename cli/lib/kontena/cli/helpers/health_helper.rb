@@ -46,17 +46,21 @@ module Kontena::Cli::Helpers
 
     HEALTH_SYMBOL = "●"
 
-    def log_health(sym, msg)
+    def health_symbol(sym)
       case sym
       when :ok
-        STDERR.puts "#{pastel.green(HEALTH_SYMBOL)} #{msg}"
+        pastel.green(HEALTH_SYMBOL)
       when :warning
-        STDERR.puts "#{pastel.yellow(HEALTH_SYMBOL)} #{msg}"
+        pastel.yellow(HEALTH_SYMBOL)
       when :error
-        STDERR.puts "#{pastel.red(HEALTH_SYMBOL)} #{msg}"
+        pastel.red(HEALTH_SYMBOL)
       else
-        STDERR.puts "#{pastel.grey(HEALTH_SYMBOL)} #{msg}"
+        pastel.grey(HEALTH_SYMBOL)
       end
+    end
+
+    def log_health(sym, msg)
+      STDERR.puts "#{health_symbol(sym)} #{msg}"
     end
   end
 end
