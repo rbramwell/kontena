@@ -29,6 +29,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 1,
             minimum: 1,
+            nodes: grid_nodes['nodes'],
             created: 0,
             connected: 0,
             health: :error,
@@ -61,6 +62,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 1,
             minimum: 1,
+            nodes: grid_nodes['nodes'],
             created: 1,
             connected: 0,
             health: :error,
@@ -93,6 +95,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 1,
             minimum: 1,
+            nodes: grid_nodes['nodes'],
             created: 1,
             connected: 1,
             health: :ok,
@@ -136,6 +139,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 2,
             minimum: 2,
+            nodes: grid_nodes['nodes'],
             created: 1,
             connected: 1,
             health: :error,
@@ -174,6 +178,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 2,
             minimum: 2,
+            nodes: grid_nodes['nodes'],
             created: 2,
             connected: 2,
             health: :ok,
@@ -223,6 +228,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 3,
             minimum: 2,
+            nodes: grid_nodes['nodes'],
             created: 2,
             connected: 1,
             health: :error,
@@ -262,6 +268,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 3,
             minimum: 2,
+            nodes: grid_nodes['nodes'],
             created: 2,
             connected: 2,
             health: :warning,
@@ -306,6 +313,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 3,
             minimum: 2,
+            nodes: grid_nodes['nodes'],
             created: 3,
             connected: 2,
             health: :warning,
@@ -350,6 +358,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 3,
             minimum: 2,
+            nodes: grid_nodes['nodes'][0..1],
             created: 2,
             connected: 2,
             health: :warning,
@@ -394,6 +403,7 @@ describe Kontena::Cli::Helpers::HealthHelper do
           expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
             initial: 3,
             minimum: 2,
+            nodes: grid_nodes['nodes'],
             created: 3,
             connected: 3,
             health: :ok,
