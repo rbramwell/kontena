@@ -20,30 +20,25 @@ module Kontena::Cli::Helpers
     # Validate grid nodes configuration and status
     #
     def check_grid_health(grid, nodes)
-      initial_nodes = grid['initial_size']
-      minimum_nodes = grid['initial_size'] / 2 + 1 # a majority is required for etcd quorum
+      initial = grid['initial_size']
+      minimum = grid['initial_size'] / 2 + 1 # a majority is required for etcd quorum
 
-      initial_nodes_created = 0
-      initial_nodes_connected = 0
+      nodes = nodes.select{|node| node['initial_member']}
+      connected_nodes = nodes.select{|node| node['connected']}
 
-      nodes.each do |node|
-        initial_nodes_created += 1 if node['initial_member']
-        initial_nodes_connected += 1 if node['initial_member'] && node['connected']
-      end
-
-      if initial_nodes_connected < minimum_nodes
+      if connected_nodes.length < minimum
         health = :error
-      elsif initial_nodes_connected < initial_nodes
+      elsif connected_nodes.length < initial
         health = :warning
       else
         health = :ok
       end
 
       return {
-        initial: initial_nodes,
-        minimum: minimum_nodes,
-        created: initial_nodes_created,
-        connected: initial_nodes_connected,
+        initial: initial,
+        minimum: minimum,
+        nodes: nodes,
+        connected: connected_nodes.length,
         health: health,
       }
     end
@@ -51,29 +46,32 @@ module Kontena::Cli::Helpers
     # Validate grid/nodes configuration for etcd operation
     # @param grid [Hash] get(/grids/:grid) => { ... }
     # @param nodes [Array<Hash>] get(/grids/:grid/nodes)[nodes] => [ { ... } ]
+    # @return [Boolean] false if unhealthy
     def show_grid_health(grid, nodes)
-      status = check_grid_health(grid, nodes)
+      grid_health = check_grid_health(grid, nodes)
 
-      if status[:created] < status[:minimum]
-        log_error "Grid only has #{status[:created]} of #{status[:initial]} initial nodes created, and requires at least #{status[:minimum]} nodes to operate"
-
-      elsif status[:connected] < status[:minimum]
-        log_error "Grid only has #{status[:connected]} of #{status[:initial]} initial nodes connected, and requires at least #{status[:minimum]} nodes to operate"
-
-      elsif status[:created] < status[:initial]
-        warning "Grid only has #{status[:created]} of #{status[:initial]} initial nodes created, and requires at least #{status[:minimum]} nodes to operate"
-
-      elsif status[:connected] < status[:initial]
-        warning "Grid only has #{status[:connected]} of #{status[:initial]} initial nodes connected, and requires at least #{status[:minimum]} nodes to operate"
-
+      if grid_health[:nodes].length < grid_health[:minimum]
+        yield :error, "Grid only has #{grid_health[:created]} of #{grid_health[:minimum]} initial nodes, and will not operate"
+      elsif grid_health[:nodes].length < grid_health[:initial]
+        yield :warning, "Grid only has #{grid_health[:created]} of #{grid_health[:initial]} initial nodes, and will not be high-availability"
       end
+
+      grid_health[:nodes].each do |node|
+        if !node['connected']
+          yield grid_health[:health], "Initial node #{node['name']} is disconnected"
+        else
+          yield :ok, "Initial node #{node['name']} is connected"
+        end
+      end
+
+      return grid_health[:health] == :ok
     end
 
     # Check node health
     #
     # @param node [Hash] get(/nodes/:grid/:node)
     # @return [Boolean] false if unhealthy
-    def check_node_health(node)
+    def show_node_health(node)
       if !node['connected']
         yield :error, "Node is not connected"
         return false
