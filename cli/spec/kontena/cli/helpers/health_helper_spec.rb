@@ -31,12 +31,24 @@ describe Kontena::Cli::Helpers::HealthHelper do
         ] }
       end
 
+      describe '#check_grid_health' do
+        it "returns error" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 1,
+            minimum: 1,
+            created: 1,
+            connected: 0,
+            health: :error,
+          )
+        end
+      end
+
       describe '#show_grid_health' do
-        it "shows an error" do
+        it "returns error" do
           expect(subject).to_not receive(:warning)
           expect(subject).to receive(:log_error)
 
-          subject.show_grid_health(grid, grid_nodes['nodes'])
+          health = subject.show_grid_health(grid, grid_nodes['nodes'])
         end
       end
     end
@@ -51,6 +63,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
             "initial_member" => true,
           },
         ] }
+      end
+
+      describe '#check_grid_health' do
+        it "returns ok" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 1,
+            minimum: 1,
+            created: 1,
+            connected: 1,
+            health: :ok,
+          )
+        end
       end
 
       describe '#show_grid_health' do
@@ -86,6 +110,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
         ] }
       end
 
+      describe '#check_grid_health' do
+        it "returns error" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 2,
+            minimum: 2,
+            created: 1,
+            connected: 1,
+            health: :error,
+          )
+        end
+      end
+
       describe '#show_grid_health' do
         it "shows an error" do
           expect(subject).to_not receive(:warning)
@@ -112,6 +148,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
             "initial_member" => true,
           },
         ] }
+      end
+
+      describe '#check_grid_health' do
+        it "returns error" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 2,
+            minimum: 2,
+            created: 2,
+            connected: 2,
+            health: :ok,
+          )
+        end
       end
 
       describe '#show_grid_health' do
@@ -153,6 +201,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
         ] }
       end
 
+      describe '#check_grid_health' do
+        it "returns error" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 3,
+            minimum: 2,
+            created: 2,
+            connected: 1,
+            health: :error,
+          )
+        end
+      end
+
       describe '#show_grid_health' do
         it "shows an error" do
           expect(subject).to_not receive(:warning)
@@ -179,6 +239,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
             "initial_member" => true,
           },
         ] }
+      end
+
+      describe '#check_grid_health' do
+        it "returns warning" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 3,
+            minimum: 2,
+            created: 2,
+            connected: 2,
+            health: :warning,
+          )
+        end
       end
 
       describe '#show_grid_health' do
@@ -215,6 +287,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
         ] }
       end
 
+      describe '#check_grid_health' do
+        it "returns warning" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 3,
+            minimum: 2,
+            created: 3,
+            connected: 2,
+            health: :warning,
+          )
+        end
+      end
+
       describe '#show_grid_health' do
         it "shows an warning" do
           expect(subject).to receive(:warning)
@@ -249,6 +333,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
         ] }
       end
 
+      describe '#check_grid_health' do
+        it "returns warning" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 3,
+            minimum: 2,
+            created: 2,
+            connected: 2,
+            health: :warning,
+          )
+        end
+      end
+
       describe '#show_grid_health' do
         it "shows an warning" do
           expect(subject).to receive(:warning)
@@ -281,6 +377,18 @@ describe Kontena::Cli::Helpers::HealthHelper do
             "initial_member" => true,
           },
         ] }
+      end
+
+      describe '#check_grid_health' do
+        it "returns warning" do
+          expect(subject.check_grid_health(grid, grid_nodes['nodes'])).to eq(
+            initial: 3,
+            minimum: 2,
+            created: 3,
+            connected: 3,
+            health: :ok,
+          )
+        end
       end
 
       describe '#show_grid_health' do

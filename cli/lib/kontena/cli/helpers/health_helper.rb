@@ -57,13 +57,13 @@ module Kontena::Cli::Helpers
       if status[:created] < status[:minimum]
         log_error "Grid only has #{status[:created]} of #{status[:initial]} initial nodes created, and requires at least #{status[:minimum]} nodes to operate"
 
-      elsif initial_nodes_connected < minimum_nodes
+      elsif status[:connected] < status[:minimum]
         log_error "Grid only has #{status[:connected]} of #{status[:initial]} initial nodes connected, and requires at least #{status[:minimum]} nodes to operate"
 
-      elsif initial_nodes_created < initial_nodes
+      elsif status[:created] < status[:initial]
         warning "Grid only has #{status[:created]} of #{status[:initial]} initial nodes created, and requires at least #{status[:minimum]} nodes to operate"
 
-      elsif initial_nodes_connected < initial_nodes
+      elsif status[:connected] < status[:initial]
         warning "Grid only has #{status[:connected]} of #{status[:initial]} initial nodes connected, and requires at least #{status[:minimum]} nodes to operate"
 
       end
