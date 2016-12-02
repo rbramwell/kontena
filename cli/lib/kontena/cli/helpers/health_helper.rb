@@ -4,6 +4,8 @@ module Kontena::Cli::Helpers
 
     def health_symbol(sym)
       case sym
+      when nil
+        " "
       when :ok
         pastel.green(HEALTH_SYMBOL)
       when :warning
