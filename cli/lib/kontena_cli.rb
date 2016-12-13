@@ -1,14 +1,21 @@
 module Kontena
   # Run a kontena command like it was launched from the command line.
-  # 
+  #
   # @example
   #   Kontena.run("grid list --help")
   #
-  # @param [String] command_line 
+  # @param [String,Array<String>] command_line
   # @return [Fixnum] exit_code
-  def self.run(cmdline = "", returning: :status)
-    ENV["DEBUG"] && puts("Running Kontena.run(#{cmdline.inspect}, returning: #{returning}")
-    result = Kontena::MainCommand.new(File.basename(__FILE__)).run(cmdline.shellsplit)
+  def self.run(*cmdline, returning: :status)
+    if cmdline.first.kind_of?(Array)
+      command = cmdline.first
+    elsif cmdline.size == 1 && cmdline.first.include?(' ')
+      command = cmdline.first.shellsplit
+    else
+      command = cmdline
+    end
+    ENV["DEBUG"] && puts("Running Kontena.run(#{command.inspect}, returning: #{returning}")
+    result = Kontena::MainCommand.new(File.basename(__FILE__)).run(command)
     ENV["DEBUG"] && puts("Command completed, result: #{result.inspect} status: 0")
     return 0 if returning == :status
     return result if returning == :result
@@ -19,7 +26,7 @@ module Kontena
     ENV["DEBUG"] && puts("Command raised #{$!} with message: #{$!.message}\n  #{$!.backtrace.join("  \n")}")
     returning == :status ? 1 : nil
   end
-    
+
 
   def self.version
     "kontena-cli/#{Kontena::Cli::VERSION}"
